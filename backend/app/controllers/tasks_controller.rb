@@ -3,9 +3,19 @@ class TasksController < ApplicationController
 
   def index
     @q = Task.ransack(params[:q])
-    @tasks = @q.result.order(created_at: :desc)
+    @tasks = @q.result.order(created_at: :desc).page(params[:page]).per(params[:per_page])
 
-    render json: @tasks
+    render json: {
+      tasks: @tasks,
+      pagination: {
+        current_page: @tasks.current_page,
+        total_pages: @tasks.total_pages,
+        total_count: @tasks.total_count,
+        per_page: @tasks.limit_value,
+        next_page: @tasks.next_page,
+        prev_page: @tasks.prev_page
+      }
+    }
   end
 
   def create

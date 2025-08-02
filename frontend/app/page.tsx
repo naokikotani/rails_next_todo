@@ -5,7 +5,8 @@ import { Container, Typography, Paper, Box, Alert, Snackbar } from '@mui/materia
 import TaskForm from '@/components/TaskForm'
 import TaskList from '@/components/TaskList'
 import TaskFiltersComponent from '@/components/TaskFilters'
-import { Task, Priority, TaskFilters } from '@/lib/types'
+import Pagination from '@/components/Pagination'
+import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/lib/types'
 import { api } from '@/lib/api'
 
 export default function Home() {
@@ -14,16 +15,27 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [filters, setFilters] = useState<TaskFilters>({})
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    current_page: 1,
+    total_pages: 1,
+    total_count: 0,
+    per_page: 10,
+    next_page: null,
+    prev_page: null
+  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
   useEffect(() => {
     loadTasks()
-  }, [filters])
+  }, [filters, currentPage, perPage])
 
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const data = await api.getTasks(filters)
-      setTasks(data)
+      const data: TasksResponse = await api.getTasks(filters, currentPage, perPage)
+      setTasks(data.tasks)
+      setPagination(data.pagination)
     } catch (err) {
       setError('タスクの取得に失敗しました')
     } finally {
@@ -33,18 +45,28 @@ export default function Home() {
 
   const handleFiltersChange = useCallback((newFilters: TaskFilters) => {
     setFilters(newFilters)
+    setCurrentPage(1)
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+  }, [])
+
+  const handlePerPageChange = useCallback((newPerPage: number) => {
+    setPerPage(newPerPage)
+    setCurrentPage(1)
   }, [])
 
   const handleAddTask = async (title: string, description: string, priority: Priority) => {
     try {
-      const newTask = await api.createTask({
+      await api.createTask({
         title,
         description,
         completed: false,
         priority,
       })
-      setTasks([...tasks, newTask])
       setSuccess('タスクを追加しました')
+      loadTasks()
     } catch (err) {
       setError('タスクの追加に失敗しました')
     }
@@ -52,8 +74,8 @@ export default function Home() {
 
   const handleToggleTask = async (id: number, completed: boolean) => {
     try {
-      const updatedTask = await api.updateTask(id, { completed })
-      setTasks(tasks.map((task) => (task.id === id ? updatedTask : task)))
+      await api.updateTask(id, { completed })
+      loadTasks()
     } catch (err) {
       setError('タスクの更新に失敗しました')
     }
@@ -62,8 +84,8 @@ export default function Home() {
   const handleDeleteTask = async (id: number) => {
     try {
       await api.deleteTask(id)
-      setTasks(tasks.filter((task) => task.id !== id))
       setSuccess('タスクを削除しました')
+      loadTasks()
     } catch (err) {
       setError('タスクの削除に失敗しました')
     }
@@ -93,11 +115,18 @@ export default function Home() {
             <Typography>読み込み中...</Typography>
           </Box>
         ) : (
-          <TaskList
-            tasks={tasks}
-            onToggle={handleToggleTask}
-            onDelete={handleDeleteTask}
-          />
+          <>
+            <TaskList
+              tasks={tasks}
+              onToggle={handleToggleTask}
+              onDelete={handleDeleteTask}
+            />
+            <Pagination
+              pagination={pagination}
+              onPageChange={handlePageChange}
+              onPerPageChange={handlePerPageChange}
+            />
+          </>
         )}
       </Paper>
 
