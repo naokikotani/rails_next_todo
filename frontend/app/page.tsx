@@ -57,14 +57,14 @@ export default function Home() {
     setCurrentPage(1)
   }, [])
 
-  const handleAddTask = async (title: string, description: string, priority: Priority) => {
+  const handleAddTask = async (title: string, description: string, priority: Priority, images?: File[]) => {
     try {
       await api.createTask({
         title,
         description,
         completed: false,
         priority,
-      })
+      }, images)
       setSuccess('タスクを追加しました')
       loadTasks()
     } catch (err) {

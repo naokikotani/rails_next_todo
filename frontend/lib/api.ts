@@ -28,13 +28,27 @@ export const api = {
     return response.json()
   },
 
-  async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task> {
+  async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'images'>, images?: File[]): Promise<Task> {
+    const formData = new FormData()
+    
+    // タスクデータを追加
+    formData.append('task[title]', task.title)
+    formData.append('task[priority]', task.priority)
+    formData.append('task[completed]', task.completed.toString())
+    if (task.description) {
+      formData.append('task[description]', task.description)
+    }
+    
+    // 画像ファイルを追加
+    if (images) {
+      images.forEach((image) => {
+        formData.append('task[images][]', image)
+      })
+    }
+
     const response = await fetch(`${API_URL}/tasks`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ task }),
+      body: formData,
     })
     if (!response.ok) throw new Error('Failed to create task')
     return response.json()
