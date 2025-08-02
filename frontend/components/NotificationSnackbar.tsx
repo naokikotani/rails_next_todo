@@ -2,6 +2,7 @@
 
 import { Snackbar, Alert } from '@mui/material'
 import { NotificationType } from '@/lib/hooks/useNotification'
+import { NOTIFICATION_CONFIG } from '@/lib/constants'
 
 interface NotificationSnackbarProps {
   open: boolean
@@ -12,18 +13,7 @@ interface NotificationSnackbarProps {
 }
 
 const getDefaultDuration = (type: NotificationType): number => {
-  switch (type) {
-    case 'error':
-      return 6000
-    case 'warning':
-      return 5000
-    case 'success':
-      return 3000
-    case 'info':
-      return 4000
-    default:
-      return 4000
-  }
+  return NOTIFICATION_CONFIG.DURATION[type.toUpperCase() as keyof typeof NOTIFICATION_CONFIG.DURATION] || NOTIFICATION_CONFIG.DURATION.INFO
 }
 
 export default function NotificationSnackbar({
@@ -40,7 +30,10 @@ export default function NotificationSnackbar({
       open={open}
       autoHideDuration={autoHideDuration}
       onClose={onClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      anchorOrigin={{ 
+        vertical: NOTIFICATION_CONFIG.POSITION.VERTICAL, 
+        horizontal: NOTIFICATION_CONFIG.POSITION.HORIZONTAL 
+      }}
     >
       <Alert 
         severity={type} 

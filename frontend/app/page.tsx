@@ -8,6 +8,7 @@ import Pagination from '@/components/Pagination'
 import NotificationSnackbar from '@/components/NotificationSnackbar'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { useTasks } from '@/lib/hooks'
+import { UI_TEXT, LOADING_MESSAGES } from '@/lib/constants'
 
 export default function Home() {
   const {
@@ -27,12 +28,12 @@ export default function Home() {
   return (
     <Container maxWidth="md" className="py-8">
       <Typography variant="h3" component="h1" className="text-center mb-8 font-bold">
-        タスク管理アプリ
+        {UI_TEXT.APP_TITLE}
       </Typography>
 
       <Paper elevation={3} className="p-6 mb-6">
         <Typography variant="h5" component="h2" className="mb-4">
-          新しいタスクを追加
+          {UI_TEXT.ADD_NEW_TASK}
         </Typography>
         <TaskForm onSubmit={createTask} />
       </Paper>
@@ -41,10 +42,10 @@ export default function Home() {
 
       <Paper elevation={3} className="p-6">
         <Typography variant="h5" component="h2" className="mb-4">
-          タスク一覧
+          {UI_TEXT.TASK_LIST}
         </Typography>
         {loading ? (
-          <LoadingSpinner message="タスクを読み込み中..." />
+          <LoadingSpinner message={LOADING_MESSAGES.LOADING_TASKS} />
         ) : (
           <>
             <TaskList

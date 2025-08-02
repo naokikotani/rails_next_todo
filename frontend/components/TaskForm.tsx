@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add'
 import ImageUpload from './ImageUpload'
 
 import { Priority } from '@/lib/types'
+import { UI_TEXT, PRIORITY_LABELS, IMAGE_CONFIG } from '@/lib/constants'
 
 interface TaskFormProps {
   onSubmit: (title: string, description: string, priority: Priority, images?: File[]) => void
@@ -32,7 +33,7 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
     <Box component="form" onSubmit={handleSubmit} className="mb-6">
       <TextField
         fullWidth
-        label="タスクのタイトル"
+        label={UI_TEXT.TASK_TITLE_LABEL}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         variant="outlined"
@@ -41,7 +42,7 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
       />
       <TextField
         fullWidth
-        label="タスクの説明（任意）"
+        label={UI_TEXT.TASK_DESCRIPTION_LABEL}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         variant="outlined"
@@ -50,16 +51,16 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
         className="mb-4"
       />
       <FormControl fullWidth className="mb-4">
-        <InputLabel id="priority-label">優先度</InputLabel>
+        <InputLabel id="priority-label">{UI_TEXT.PRIORITY_LABEL}</InputLabel>
         <Select
           labelId="priority-label"
           value={priority}
-          label="優先度"
+          label={UI_TEXT.PRIORITY_LABEL}
           onChange={(e) => setPriority(e.target.value as Priority)}
         >
-          <MenuItem value="low">低</MenuItem>
-          <MenuItem value="medium">中</MenuItem>
-          <MenuItem value="high">高</MenuItem>
+          <MenuItem value="low">{PRIORITY_LABELS.low}</MenuItem>
+          <MenuItem value="medium">{PRIORITY_LABELS.medium}</MenuItem>
+          <MenuItem value="high">{PRIORITY_LABELS.high}</MenuItem>
         </Select>
       </FormControl>
       
@@ -67,7 +68,7 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
         <ImageUpload 
           images={images}
           onImagesChange={setImages}
-          maxImages={3}
+          maxImages={IMAGE_CONFIG.MAX_IMAGES}
         />
       </Box>
       
@@ -79,7 +80,7 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
         fullWidth
         size="large"
       >
-        タスクを追加
+        {UI_TEXT.ADD_TASK_BUTTON}
       </Button>
     </Box>
   )

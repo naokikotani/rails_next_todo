@@ -4,6 +4,7 @@ import { tasksApi } from '@/lib/api'
 import { useNotification } from './useNotification'
 import { useLoading } from './useLoading'
 import { useErrorHandler } from './useErrorHandler'
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, PAGINATION_CONFIG } from '@/lib/constants'
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -15,12 +16,12 @@ export function useTasks() {
     current_page: 1,
     total_pages: 1,
     total_count: 0,
-    per_page: 10,
+    per_page: PAGINATION_CONFIG.DEFAULT_PER_PAGE,
     next_page: null,
     prev_page: null
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(PAGINATION_CONFIG.DEFAULT_PER_PAGE)
 
   // タスク一覧の読み込み
   const loadTasks = useCallback(async () => {
@@ -31,7 +32,7 @@ export function useTasks() {
       setTasks(data.tasks)
       setPagination(data.pagination)
     } catch (err) {
-      handleError(err, 'タスク一覧の読み込み', 'タスクの取得に失敗しました')
+      handleError(err, 'タスク一覧の読み込み', ERROR_MESSAGES.TASK_FETCH_FAILED)
     }
   }, [filters, currentPage, perPage, handleError, withLoading])
 
@@ -71,10 +72,10 @@ export function useTasks() {
         completed: false,
         priority,
       }, images)
-      showSuccess('タスクを追加しました')
+      showSuccess(SUCCESS_MESSAGES.TASK_CREATED)
       await loadTasks() // データを再読み込み
     } catch (err) {
-      handleError(err, 'タスクの作成', 'タスクの追加に失敗しました')
+      handleError(err, 'タスクの作成', ERROR_MESSAGES.TASK_CREATE_FAILED)
     }
   }, [loadTasks, showSuccess, handleError])
 
@@ -84,7 +85,7 @@ export function useTasks() {
       await tasksApi.updateTask(id, { completed })
       await loadTasks() // データを再読み込み
     } catch (err) {
-      handleError(err, 'タスクの更新', 'タスクの更新に失敗しました')
+      handleError(err, 'タスクの更新', ERROR_MESSAGES.TASK_UPDATE_FAILED)
     }
   }, [loadTasks, handleError])
 
@@ -92,10 +93,10 @@ export function useTasks() {
   const deleteTask = useCallback(async (id: number) => {
     try {
       await tasksApi.deleteTask(id)
-      showSuccess('タスクを削除しました')
+      showSuccess(SUCCESS_MESSAGES.TASK_DELETED)
       await loadTasks() // データを再読み込み
     } catch (err) {
-      handleError(err, 'タスクの削除', 'タスクの削除に失敗しました')
+      handleError(err, 'タスクの削除', ERROR_MESSAGES.TASK_DELETE_FAILED)
     }
   }, [loadTasks, showSuccess, handleError])
 

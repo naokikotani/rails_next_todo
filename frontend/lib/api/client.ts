@@ -1,6 +1,7 @@
 import { AppError, ErrorType, parseApiError, isNetworkError } from '@/lib/errors'
+import { API_CONFIG } from '@/lib/constants'
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+export const API_URL = API_CONFIG.BASE_URL
 
 // APIリクエストのラッパー関数
 export async function apiRequest<T>(
