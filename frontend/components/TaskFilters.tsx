@@ -46,11 +46,11 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
     onFiltersChange(filters)
   }, [debouncedSearch, priority, completed]) // onFiltersChangeを依存配列から除外
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearch('')
     setPriority('')
     setCompleted('')
-  }
+  }, [])
 
   const hasActiveFilters = debouncedSearch.trim() || priority || completed !== ''
 

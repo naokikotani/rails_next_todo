@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/lib/types'
 import { tasksApi } from '@/lib/api'
 import { useNotification } from './useNotification'
@@ -34,7 +34,7 @@ export function useTasks() {
     } catch (err) {
       handleError(err, 'タスク一覧の読み込み', ERROR_MESSAGES.TASK_FETCH_FAILED)
     }
-  }, [filters, currentPage, perPage, handleError, withLoading])
+  }, [filters, currentPage, perPage, withLoading])
 
   // 初回読み込みと依存関係の変更時に実行
   useEffect(() => {
@@ -77,7 +77,7 @@ export function useTasks() {
     } catch (err) {
       handleError(err, 'タスクの作成', ERROR_MESSAGES.TASK_CREATE_FAILED)
     }
-  }, [loadTasks, showSuccess, handleError])
+  }, [loadTasks])
 
   // タスクの完了状態切り替え
   const toggleTask = useCallback(async (id: number, completed: boolean) => {
@@ -87,7 +87,7 @@ export function useTasks() {
     } catch (err) {
       handleError(err, 'タスクの更新', ERROR_MESSAGES.TASK_UPDATE_FAILED)
     }
-  }, [loadTasks, handleError])
+  }, [loadTasks])
 
   // タスク削除
   const deleteTask = useCallback(async (id: number) => {
@@ -98,9 +98,9 @@ export function useTasks() {
     } catch (err) {
       handleError(err, 'タスクの削除', ERROR_MESSAGES.TASK_DELETE_FAILED)
     }
-  }, [loadTasks, showSuccess, handleError])
+  }, [loadTasks])
 
-  return {
+  return useMemo(() => ({
     // 状態
     tasks,
     loading,
@@ -120,5 +120,20 @@ export function useTasks() {
     
     // 通知
     ...notification,
-  }
+  }), [
+    tasks,
+    loading,
+    filters,
+    pagination,
+    currentPage,
+    perPage,
+    loadTasks,
+    createTask,
+    toggleTask,
+    deleteTask,
+    handleFiltersChange,
+    handlePageChange,
+    handlePerPageChange,
+    notification,
+  ])
 }
