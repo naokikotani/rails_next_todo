@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import TaskImages from './TaskImages'
+import { PRIORITY_LABELS } from '@/lib/constants'
 
 interface TaskItemProps {
   task: Task
@@ -30,11 +31,7 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   }
 
   const getPriorityLabel = (priority: Priority): string => {
-    switch (priority) {
-      case 'high': return '高'
-      case 'medium': return '中'
-      case 'low': return '低'
-    }
+    return PRIORITY_LABELS[priority]
   }
   return (
     <ListItem className="bg-white rounded-lg shadow-sm mb-2 hover:shadow-md transition-shadow">

@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { TaskFilters, Priority } from '@/lib/types'
+import { PRIORITY_LABELS, COMPLETION_LABELS, UI_TEXT, FILTER_CONFIG } from '@/lib/constants'
 
 interface TaskFiltersProps {
   onFiltersChange: (filters: TaskFilters) => void
@@ -25,8 +26,8 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
   const [priority, setPriority] = useState<Priority | ''>('')
   const [completed, setCompleted] = useState<boolean | ''>('')
 
-  // 検索クエリを500ms遅延させる（debounce）
-  const debouncedSearch = useDebounce(search, 500)
+  // 検索クエリを遅延させる（debounce）
+  const debouncedSearch = useDebounce(search, FILTER_CONFIG.DEBOUNCE_DELAY)
 
   // フィルター変更時にコールバックを実行
   useEffect(() => {
@@ -45,25 +46,25 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
     onFiltersChange(filters)
   }, [debouncedSearch, priority, completed]) // onFiltersChangeを依存配列から除外
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearch('')
     setPriority('')
     setCompleted('')
-  }
+  }, [])
 
   const hasActiveFilters = debouncedSearch.trim() || priority || completed !== ''
 
   return (
     <Paper elevation={2} className="p-4 mb-6">
       <Typography variant="h6" className="mb-3">
-        検索・フィルター
+        {UI_TEXT.SEARCH_FILTERS}
       </Typography>
       
       <Box className="flex flex-col md:flex-row gap-4">
         {/* 検索バー */}
         <TextField
           fullWidth
-          placeholder="タスクを検索..."
+          placeholder={UI_TEXT.SEARCH_PLACEHOLDER}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{
@@ -75,16 +76,16 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
 
         {/* 優先度フィルター */}
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>優先度</InputLabel>
+          <InputLabel>{UI_TEXT.PRIORITY_LABEL}</InputLabel>
           <Select
             value={priority}
-            label="優先度"
+            label={UI_TEXT.PRIORITY_LABEL}
             onChange={(e) => setPriority(e.target.value as Priority | '')}
           >
-            <MenuItem value="">すべて</MenuItem>
-            <MenuItem value="high">高</MenuItem>
-            <MenuItem value="medium">中</MenuItem>
-            <MenuItem value="low">低</MenuItem>
+            <MenuItem value="">{COMPLETION_LABELS.all}</MenuItem>
+            <MenuItem value="high">{PRIORITY_LABELS.high}</MenuItem>
+            <MenuItem value="medium">{PRIORITY_LABELS.medium}</MenuItem>
+            <MenuItem value="low">{PRIORITY_LABELS.low}</MenuItem>
           </Select>
         </FormControl>
 
@@ -96,9 +97,9 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
             label="状態"
             onChange={(e) => setCompleted(e.target.value as boolean | '')}
           >
-            <MenuItem value="">すべて</MenuItem>
-            <MenuItem value={false}>未完了</MenuItem>
-            <MenuItem value={true}>完了済み</MenuItem>
+            <MenuItem value="">{COMPLETION_LABELS.all}</MenuItem>
+            <MenuItem value={false}>{COMPLETION_LABELS.incomplete}</MenuItem>
+            <MenuItem value={true}>{COMPLETION_LABELS.completed}</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -107,7 +108,7 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
       {hasActiveFilters && (
         <Box className="mt-3 flex flex-wrap gap-2 items-center">
           <Typography variant="body2" className="text-gray-600">
-            アクティブフィルター:
+            {UI_TEXT.ACTIVE_FILTERS}
           </Typography>
           {debouncedSearch.trim() && (
             <Chip
@@ -120,7 +121,7 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
           )}
           {priority && (
             <Chip
-              label={`優先度: ${priority === 'high' ? '高' : priority === 'medium' ? '中' : '低'}`}
+              label={`${UI_TEXT.PRIORITY_LABEL}: ${PRIORITY_LABELS[priority]}`}
               onDelete={() => setPriority('')}
               size="small"
               color="secondary"
@@ -129,7 +130,7 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
           )}
           {completed !== '' && (
             <Chip
-              label={`状態: ${completed ? '完了済み' : '未完了'}`}
+              label={`状態: ${completed ? COMPLETION_LABELS.completed : COMPLETION_LABELS.incomplete}`}
               onDelete={() => setCompleted('')}
               size="small"
               color="success"
@@ -137,7 +138,7 @@ export default function TaskFiltersComponent({ onFiltersChange }: TaskFiltersPro
             />
           )}
           <Chip
-            label="すべてクリア"
+            label={UI_TEXT.CLEAR_ALL_FILTERS}
             onClick={clearFilters}
             size="small"
             color="default"
