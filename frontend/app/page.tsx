@@ -1,18 +1,17 @@
 'use client'
 
-import { Container, Typography, Paper, Box, Alert, Snackbar } from '@mui/material'
+import { Container, Typography, Paper, Box } from '@mui/material'
 import TaskForm from '@/components/TaskForm'
 import TaskList from '@/components/TaskList'
 import TaskFiltersComponent from '@/components/TaskFilters'
 import Pagination from '@/components/Pagination'
+import NotificationSnackbar from '@/components/NotificationSnackbar'
 import { useTasks } from '@/lib/hooks'
 
 export default function Home() {
   const {
     tasks,
     loading,
-    error,
-    success,
     pagination,
     createTask,
     toggleTask,
@@ -20,8 +19,8 @@ export default function Home() {
     handleFiltersChange,
     handlePageChange,
     handlePerPageChange,
-    clearError,
-    clearSuccess,
+    notification,
+    clearNotification,
   } = useTasks()
 
   return (
@@ -63,25 +62,13 @@ export default function Home() {
         )}
       </Paper>
 
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={clearError}
-      >
-        <Alert severity="error" onClose={clearError}>
-          {error}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={!!success}
-        autoHideDuration={3000}
-        onClose={clearSuccess}
-      >
-        <Alert severity="success" onClose={clearSuccess}>
-          {success}
-        </Alert>
-      </Snackbar>
+      <NotificationSnackbar
+        open={!!notification}
+        message={notification?.message || ''}
+        type={notification?.type || 'info'}
+        duration={notification?.duration}
+        onClose={clearNotification}
+      />
     </Container>
   )
 }

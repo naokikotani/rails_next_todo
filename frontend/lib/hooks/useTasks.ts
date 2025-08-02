@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/lib/types'
 import { api } from '@/lib/api'
+import { useNotification } from './useNotification'
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const { showSuccess, showError, ...notification } = useNotification()
   const [filters, setFilters] = useState<TaskFilters>({})
   const [pagination, setPagination] = useState<PaginationInfo>({
     current_page: 1,
@@ -27,11 +27,11 @@ export function useTasks() {
       setTasks(data.tasks)
       setPagination(data.pagination)
     } catch (err) {
-      setError('タスクの取得に失敗しました')
+      showError('タスクの取得に失敗しました')
     } finally {
       setLoading(false)
     }
-  }, [filters, currentPage, perPage])
+  }, [filters, currentPage, perPage, showError])
 
   // 初回読み込みと依存関係の変更時に実行
   useEffect(() => {
@@ -69,12 +69,12 @@ export function useTasks() {
         completed: false,
         priority,
       }, images)
-      setSuccess('タスクを追加しました')
+      showSuccess('タスクを追加しました')
       await loadTasks() // データを再読み込み
     } catch (err) {
-      setError('タスクの追加に失敗しました')
+      showError('タスクの追加に失敗しました')
     }
-  }, [loadTasks])
+  }, [loadTasks, showSuccess, showError])
 
   // タスクの完了状態切り替え
   const toggleTask = useCallback(async (id: number, completed: boolean) => {
@@ -82,31 +82,25 @@ export function useTasks() {
       await api.updateTask(id, { completed })
       await loadTasks() // データを再読み込み
     } catch (err) {
-      setError('タスクの更新に失敗しました')
+      showError('タスクの更新に失敗しました')
     }
-  }, [loadTasks])
+  }, [loadTasks, showError])
 
   // タスク削除
   const deleteTask = useCallback(async (id: number) => {
     try {
       await api.deleteTask(id)
-      setSuccess('タスクを削除しました')
+      showSuccess('タスクを削除しました')
       await loadTasks() // データを再読み込み
     } catch (err) {
-      setError('タスクの削除に失敗しました')
+      showError('タスクの削除に失敗しました')
     }
-  }, [loadTasks])
-
-  // エラーとサクセスメッセージのクリア
-  const clearError = useCallback(() => setError(null), [])
-  const clearSuccess = useCallback(() => setSuccess(null), [])
+  }, [loadTasks, showSuccess, showError])
 
   return {
     // 状態
     tasks,
     loading,
-    error,
-    success,
     filters,
     pagination,
     currentPage,
@@ -120,7 +114,8 @@ export function useTasks() {
     handleFiltersChange,
     handlePageChange,
     handlePerPageChange,
-    clearError,
-    clearSuccess,
+    
+    // 通知
+    ...notification,
   }
 }
