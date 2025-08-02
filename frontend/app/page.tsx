@@ -1,11 +1,12 @@
 'use client'
 
-import { Container, Typography, Paper, Box } from '@mui/material'
+import { Container, Typography, Paper } from '@mui/material'
 import TaskForm from '@/components/TaskForm'
 import TaskList from '@/components/TaskList'
 import TaskFiltersComponent from '@/components/TaskFilters'
 import Pagination from '@/components/Pagination'
 import NotificationSnackbar from '@/components/NotificationSnackbar'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { useTasks } from '@/lib/hooks'
 
 export default function Home() {
@@ -43,9 +44,7 @@ export default function Home() {
           タスク一覧
         </Typography>
         {loading ? (
-          <Box className="text-center py-8">
-            <Typography>読み込み中...</Typography>
-          </Box>
+          <LoadingSpinner message="タスクを読み込み中..." />
         ) : (
           <>
             <TaskList

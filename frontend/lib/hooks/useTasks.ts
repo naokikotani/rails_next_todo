@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/lib/types'
 import { api } from '@/lib/api'
 import { useNotification } from './useNotification'
+import { useLoading } from './useLoading'
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
+  const { isLoading: loading, withLoading } = useLoading(true)
   const { showSuccess, showError, ...notification } = useNotification()
   const [filters, setFilters] = useState<TaskFilters>({})
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -22,16 +23,15 @@ export function useTasks() {
   // タスク一覧の読み込み
   const loadTasks = useCallback(async () => {
     try {
-      setLoading(true)
-      const data: TasksResponse = await api.getTasks(filters, currentPage, perPage)
+      const data: TasksResponse = await withLoading(() => 
+        api.getTasks(filters, currentPage, perPage)
+      )
       setTasks(data.tasks)
       setPagination(data.pagination)
     } catch (err) {
       showError('タスクの取得に失敗しました')
-    } finally {
-      setLoading(false)
     }
-  }, [filters, currentPage, perPage, showError])
+  }, [filters, currentPage, perPage, showError, withLoading])
 
   // 初回読み込みと依存関係の変更時に実行
   useEffect(() => {
