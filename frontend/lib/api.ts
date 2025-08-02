@@ -1,6 +1,31 @@
 import { Task, TaskFilters, TasksResponse } from './types'
+import { AppError, ErrorType, parseApiError, isNetworkError } from './errors'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+// APIリクエストのラッパー関数
+async function apiRequest<T>(
+  url: string, 
+  options?: RequestInit
+): Promise<T> {
+  try {
+    const response = await fetch(url, options)
+    
+    if (!response.ok) {
+      throw await parseApiError(response)
+    }
+    
+    return response.json()
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new AppError(
+        'ネットワークエラーが発生しました',
+        ErrorType.NETWORK_ERROR
+      )
+    }
+    throw error
+  }
+}
 
 export const api = {
   async getTasks(filters?: TaskFilters, page?: number, perPage?: number): Promise<TasksResponse> {
@@ -23,9 +48,7 @@ export const api = {
       url.searchParams.append('per_page', perPage.toString())
     }
 
-    const response = await fetch(url.toString())
-    if (!response.ok) throw new Error('Failed to fetch tasks')
-    return response.json()
+    return apiRequest<TasksResponse>(url.toString())
   },
 
   async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'images'>, images?: File[]): Promise<Task> {
@@ -46,30 +69,25 @@ export const api = {
       })
     }
 
-    const response = await fetch(`${API_URL}/tasks`, {
+    return apiRequest<Task>(`${API_URL}/tasks`, {
       method: 'POST',
       body: formData,
     })
-    if (!response.ok) throw new Error('Failed to create task')
-    return response.json()
   },
 
   async updateTask(id: number, task: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>): Promise<Task> {
-    const response = await fetch(`${API_URL}/tasks/${id}`, {
+    return apiRequest<Task>(`${API_URL}/tasks/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ task }),
     })
-    if (!response.ok) throw new Error('Failed to update task')
-    return response.json()
   },
 
   async deleteTask(id: number): Promise<void> {
-    const response = await fetch(`${API_URL}/tasks/${id}`, {
+    await apiRequest<void>(`${API_URL}/tasks/${id}`, {
       method: 'DELETE',
     })
-    if (!response.ok) throw new Error('Failed to delete task')
   },
 }

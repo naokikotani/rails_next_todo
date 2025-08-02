@@ -3,11 +3,13 @@ import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/li
 import { api } from '@/lib/api'
 import { useNotification } from './useNotification'
 import { useLoading } from './useLoading'
+import { useErrorHandler } from './useErrorHandler'
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const { isLoading: loading, withLoading } = useLoading(true)
-  const { showSuccess, showError, ...notification } = useNotification()
+  const { showSuccess, ...notification } = useNotification()
+  const { handleError } = useErrorHandler()
   const [filters, setFilters] = useState<TaskFilters>({})
   const [pagination, setPagination] = useState<PaginationInfo>({
     current_page: 1,
@@ -29,9 +31,9 @@ export function useTasks() {
       setTasks(data.tasks)
       setPagination(data.pagination)
     } catch (err) {
-      showError('タスクの取得に失敗しました')
+      handleError(err, 'タスク一覧の読み込み', 'タスクの取得に失敗しました')
     }
-  }, [filters, currentPage, perPage, showError, withLoading])
+  }, [filters, currentPage, perPage, handleError, withLoading])
 
   // 初回読み込みと依存関係の変更時に実行
   useEffect(() => {
@@ -72,9 +74,9 @@ export function useTasks() {
       showSuccess('タスクを追加しました')
       await loadTasks() // データを再読み込み
     } catch (err) {
-      showError('タスクの追加に失敗しました')
+      handleError(err, 'タスクの作成', 'タスクの追加に失敗しました')
     }
-  }, [loadTasks, showSuccess, showError])
+  }, [loadTasks, showSuccess, handleError])
 
   // タスクの完了状態切り替え
   const toggleTask = useCallback(async (id: number, completed: boolean) => {
@@ -82,9 +84,9 @@ export function useTasks() {
       await api.updateTask(id, { completed })
       await loadTasks() // データを再読み込み
     } catch (err) {
-      showError('タスクの更新に失敗しました')
+      handleError(err, 'タスクの更新', 'タスクの更新に失敗しました')
     }
-  }, [loadTasks, showError])
+  }, [loadTasks, handleError])
 
   // タスク削除
   const deleteTask = useCallback(async (id: number) => {
@@ -93,9 +95,9 @@ export function useTasks() {
       showSuccess('タスクを削除しました')
       await loadTasks() // データを再読み込み
     } catch (err) {
-      showError('タスクの削除に失敗しました')
+      handleError(err, 'タスクの削除', 'タスクの削除に失敗しました')
     }
-  }, [loadTasks, showSuccess, showError])
+  }, [loadTasks, showSuccess, handleError])
 
   return {
     // 状態
