@@ -1,10 +1,22 @@
-import { Task } from './types'
+import { Task, TaskFilters } from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export const api = {
-  async getTasks(): Promise<Task[]> {
-    const response = await fetch(`${API_URL}/tasks`)
+  async getTasks(filters?: TaskFilters): Promise<Task[]> {
+    const url = new URL(`${API_URL}/tasks`)
+
+    if (filters?.search) {
+      url.searchParams.append('q[title_cont]', filters.search)
+    }
+    if (filters?.priority) {
+      url.searchParams.append('q[priority_eq]', filters.priority)
+    }
+    if (filters?.completed !== undefined) {
+      url.searchParams.append('q[completed_eq]', filters.completed.toString())
+    }
+
+    const response = await fetch(url.toString())
     if (!response.ok) throw new Error('Failed to fetch tasks')
     return response.json()
   },

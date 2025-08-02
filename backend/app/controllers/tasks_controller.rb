@@ -2,7 +2,9 @@ class TasksController < ApplicationController
   before_action :set_task, only: [:update, :destroy]
 
   def index
-    @tasks = Task.all
+    @q = Task.ransack(params[:q])
+    @tasks = @q.result.order(created_at: :desc)
+
     render json: @tasks
   end
 
