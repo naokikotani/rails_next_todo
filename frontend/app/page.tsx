@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Container, Typography, Paper, Box, Alert, Snackbar } from '@mui/material'
 import TaskForm from '@/components/TaskForm'
 import TaskList from '@/components/TaskList'
-import { Task, Priority } from '@/lib/types'
+import TaskFiltersComponent from '@/components/TaskFilters'
+import { Task, Priority, TaskFilters } from '@/lib/types'
 import { api } from '@/lib/api'
 
 export default function Home() {
@@ -12,15 +13,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [filters, setFilters] = useState<TaskFilters>({})
 
   useEffect(() => {
     loadTasks()
-  }, [])
+  }, [filters])
 
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const data = await api.getTasks()
+      const data = await api.getTasks(filters)
       setTasks(data)
     } catch (err) {
       setError('タスクの取得に失敗しました')
@@ -28,6 +30,10 @@ export default function Home() {
       setLoading(false)
     }
   }
+
+  const handleFiltersChange = useCallback((newFilters: TaskFilters) => {
+    setFilters(newFilters)
+  }, [])
 
   const handleAddTask = async (title: string, description: string, priority: Priority) => {
     try {
@@ -75,6 +81,8 @@ export default function Home() {
         </Typography>
         <TaskForm onSubmit={handleAddTask} />
       </Paper>
+
+      <TaskFiltersComponent onFiltersChange={handleFiltersChange} />
 
       <Paper elevation={3} className="p-6">
         <Typography variant="h5" component="h2" className="mb-4">

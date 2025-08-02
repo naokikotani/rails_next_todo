@@ -9,3 +9,9 @@ export interface Task {
   created_at: string
   updated_at: string
 }
+
+export interface TaskFilters {
+  search?: string
+  priority?: Priority
+  completed?: boolean
+}
