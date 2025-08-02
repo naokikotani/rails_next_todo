@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Task, Priority, TaskFilters, PaginationInfo, TasksResponse } from '@/lib/types'
-import { api } from '@/lib/api'
+import { tasksApi } from '@/lib/api'
 import { useNotification } from './useNotification'
 import { useLoading } from './useLoading'
 import { useErrorHandler } from './useErrorHandler'
@@ -26,7 +26,7 @@ export function useTasks() {
   const loadTasks = useCallback(async () => {
     try {
       const data: TasksResponse = await withLoading(() => 
-        api.getTasks(filters, currentPage, perPage)
+        tasksApi.getTasks(filters, currentPage, perPage)
       )
       setTasks(data.tasks)
       setPagination(data.pagination)
@@ -65,7 +65,7 @@ export function useTasks() {
     images?: File[]
   ) => {
     try {
-      await api.createTask({
+      await tasksApi.createTask({
         title,
         description,
         completed: false,
@@ -81,7 +81,7 @@ export function useTasks() {
   // タスクの完了状態切り替え
   const toggleTask = useCallback(async (id: number, completed: boolean) => {
     try {
-      await api.updateTask(id, { completed })
+      await tasksApi.updateTask(id, { completed })
       await loadTasks() // データを再読み込み
     } catch (err) {
       handleError(err, 'タスクの更新', 'タスクの更新に失敗しました')
@@ -91,7 +91,7 @@ export function useTasks() {
   // タスク削除
   const deleteTask = useCallback(async (id: number) => {
     try {
-      await api.deleteTask(id)
+      await tasksApi.deleteTask(id)
       showSuccess('タスクを削除しました')
       await loadTasks() // データを再読み込み
     } catch (err) {
