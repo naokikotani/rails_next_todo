@@ -1,14 +1,12 @@
 'use client'
 
-import { Container, Typography, Paper } from '@mui/material'
-import TaskForm from '@/components/TaskForm'
-import TaskList from '@/components/TaskList'
-import TaskFiltersComponent from '@/components/TaskFilters'
-import Pagination from '@/components/Pagination'
+import { Container } from '@mui/material'
+import AppHeader from '@/components/sections/AppHeader'
+import TaskFormSection from '@/components/sections/TaskFormSection'
+import TaskListSection from '@/components/sections/TaskListSection'
+import TaskFiltersRefactored from '@/components/TaskFiltersRefactored'
 import NotificationSnackbar from '@/components/NotificationSnackbar'
-import LoadingSpinner from '@/components/LoadingSpinner'
 import { useTasks } from '@/lib/hooks'
-import { UI_TEXT, LOADING_MESSAGES } from '@/lib/constants'
 
 export default function Home() {
   const {
@@ -27,40 +25,21 @@ export default function Home() {
 
   return (
     <Container maxWidth="md" className="py-8">
-      <Typography variant="h3" component="h1" className="text-center mb-8 font-bold">
-        {UI_TEXT.APP_TITLE}
-      </Typography>
+      <AppHeader />
+      
+      <TaskFormSection onSubmit={createTask} />
 
-      <Paper elevation={3} className="p-6 mb-6">
-        <Typography variant="h5" component="h2" className="mb-4">
-          {UI_TEXT.ADD_NEW_TASK}
-        </Typography>
-        <TaskForm onSubmit={createTask} />
-      </Paper>
+      <TaskFiltersRefactored onFiltersChange={handleFiltersChange} />
 
-      <TaskFiltersComponent onFiltersChange={handleFiltersChange} />
-
-      <Paper elevation={3} className="p-6">
-        <Typography variant="h5" component="h2" className="mb-4">
-          {UI_TEXT.TASK_LIST}
-        </Typography>
-        {loading ? (
-          <LoadingSpinner message={LOADING_MESSAGES.LOADING_TASKS} />
-        ) : (
-          <>
-            <TaskList
-              tasks={tasks}
-              onToggle={toggleTask}
-              onDelete={deleteTask}
-            />
-            <Pagination
-              pagination={pagination}
-              onPageChange={handlePageChange}
-              onPerPageChange={handlePerPageChange}
-            />
-          </>
-        )}
-      </Paper>
+      <TaskListSection
+        tasks={tasks}
+        loading={loading}
+        pagination={pagination}
+        onToggle={toggleTask}
+        onDelete={deleteTask}
+        onPageChange={handlePageChange}
+        onPerPageChange={handlePerPageChange}
+      />
 
       <NotificationSnackbar
         open={!!notification}
