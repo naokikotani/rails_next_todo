@@ -9,10 +9,14 @@ class Task < ApplicationRecord
   }
 
   def self.ransackable_attributes(auth_object = nil)
-    ["completed", "created_at", "description", "id", "priority", "title", "updated_at"]
+    %w[completed created_at description id priority title updated_at]
   end
 
   def self.ransackable_associations(auth_object = nil)
     []
+  end
+
+  def self.ransortable_attributes(auth_object = nil)
+    %w[created_at priority title updated_at]
   end
 end
