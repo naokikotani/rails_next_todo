@@ -3,25 +3,28 @@
 import { useState } from 'react'
 import { TextField, Button, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import ImageUpload from './ImageUpload'
 
 import { Priority } from '@/lib/types'
 
 interface TaskFormProps {
-  onSubmit: (title: string, description: string, priority: Priority) => void
+  onSubmit: (title: string, description: string, priority: Priority, images?: File[]) => void
 }
 
 export default function TaskForm({ onSubmit }: TaskFormProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
+  const [images, setImages] = useState<File[]>([])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (title.trim()) {
-      onSubmit(title, description, priority)
+      onSubmit(title, description, priority, images.length > 0 ? images : undefined)
       setTitle('')
       setDescription('')
       setPriority('medium')
+      setImages([])
     }
   }
 
@@ -59,6 +62,15 @@ export default function TaskForm({ onSubmit }: TaskFormProps) {
           <MenuItem value="high">高</MenuItem>
         </Select>
       </FormControl>
+      
+      <Box className="mb-4">
+        <ImageUpload 
+          images={images}
+          onImagesChange={setImages}
+          maxImages={3}
+        />
+      </Box>
+      
       <Button
         type="submit"
         variant="contained"

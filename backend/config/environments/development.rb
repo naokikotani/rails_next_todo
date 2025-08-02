@@ -17,6 +17,7 @@ Rails.application.configure do
   end
 
   config.active_storage.variant_processor = :mini_magick
+  config.active_storage.service = :local
   config.action_mailer.raise_delivery_errors = false
   config.action_mailer.perform_caching = false
   config.active_support.deprecation = :log

@@ -6,7 +6,7 @@ class TasksController < ApplicationController
     @tasks = @q.result.order(created_at: :desc).page(params[:page]).per(params[:per_page])
 
     render json: {
-      tasks: @tasks,
+      tasks: @tasks.map { |task| task_with_images(task) },
       pagination: {
         current_page: @tasks.current_page,
         total_pages: @tasks.total_pages,
@@ -22,7 +22,7 @@ class TasksController < ApplicationController
     @task = Task.new(task_params)
 
     if @task.save
-      render json: @task, status: :created
+      render json: task_with_images(@task), status: :created
     else
       render json: @task.errors, status: :unprocessable_entity
     end
@@ -30,7 +30,7 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      render json: @task
+      render json: task_with_images(@task)
     else
       render json: @task.errors, status: :unprocessable_entity
     end
@@ -48,6 +48,20 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :completed, :priority)
+    params.require(:task).permit(:title, :description, :completed, :priority, images: [])
+  end
+
+  def task_with_images(task)
+    task_data = task.as_json
+    task_data['images'] = task.images.map do |image|
+      {
+        id: image.id,
+        url: url_for(image),
+        filename: image.filename.to_s,
+        content_type: image.content_type,
+        byte_size: image.byte_size
+      }
+    end
+    task_data
   end
 end

@@ -12,6 +12,7 @@ import {
   Box,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import TaskImages from './TaskImages'
 
 interface TaskItemProps {
   task: Task
@@ -60,14 +61,19 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
           </Box>
         }
         secondary={
-          task.description && (
-            <Typography
-              variant="body2"
-              className={task.completed ? 'line-through text-gray-400' : 'text-gray-600'}
-            >
-              {task.description}
-            </Typography>
-          )
+          <Box>
+            {task.description && (
+              <Typography
+                variant="body2"
+                className={task.completed ? 'line-through text-gray-400' : 'text-gray-600'}
+              >
+                {task.description}
+              </Typography>
+            )}
+            {task.images && task.images.length > 0 && (
+              <TaskImages images={task.images} compact={true} />
+            )}
+          </Box>
         }
       />
       <ListItemSecondaryAction>

@@ -1,5 +1,13 @@
 export type Priority = 'low' | 'medium' | 'high'
 
+export interface TaskImage {
+  id: number
+  url: string
+  filename: string
+  content_type: string
+  byte_size: number
+}
+
 export interface Task {
   id: number
   title: string
@@ -8,6 +16,7 @@ export interface Task {
   priority: Priority
   created_at: string
   updated_at: string
+  images?: TaskImage[]
 }
 
 export interface TaskFilters {
