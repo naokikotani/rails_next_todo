@@ -1,9 +1,9 @@
-import { Task, TaskFilters } from './types'
+import { Task, TaskFilters, TasksResponse } from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export const api = {
-  async getTasks(filters?: TaskFilters): Promise<Task[]> {
+  async getTasks(filters?: TaskFilters, page?: number, perPage?: number): Promise<TasksResponse> {
     const url = new URL(`${API_URL}/tasks`)
 
     if (filters?.search) {
@@ -14,6 +14,13 @@ export const api = {
     }
     if (filters?.completed !== undefined) {
       url.searchParams.append('q[completed_eq]', filters.completed.toString())
+    }
+
+    if (page) {
+      url.searchParams.append('page', page.toString())
+    }
+    if (perPage) {
+      url.searchParams.append('per_page', perPage.toString())
     }
 
     const response = await fetch(url.toString())
