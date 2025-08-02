@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Container, Typography, Paper, Box, Alert, Snackbar } from '@mui/material'
 import TaskForm from '@/components/TaskForm'
 import TaskList from '@/components/TaskList'
-import { Task } from '@/lib/types'
+import { Task, Priority } from '@/lib/types'
 import { api } from '@/lib/api'
 
 export default function Home() {
@@ -29,12 +29,13 @@ export default function Home() {
     }
   }
 
-  const handleAddTask = async (title: string, description: string) => {
+  const handleAddTask = async (title: string, description: string, priority: Priority) => {
     try {
       const newTask = await api.createTask({
         title,
         description,
         completed: false,
+        priority,
       })
       setTasks([...tasks, newTask])
       setSuccess('タスクを追加しました')

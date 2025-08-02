@@ -1,6 +1,6 @@
 'use client'
 
-import { Task } from '@/lib/types'
+import { Task, Priority } from '@/lib/types'
 import {
   ListItem,
   ListItemText,
@@ -8,6 +8,8 @@ import {
   IconButton,
   Checkbox,
   Typography,
+  Chip,
+  Box,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 
@@ -18,6 +20,21 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+  const getPriorityColor = (priority: Priority): 'error' | 'warning' | 'success' => {
+    switch (priority) {
+      case 'high': return 'error'
+      case 'medium': return 'warning'
+      case 'low': return 'success'
+    }
+  }
+
+  const getPriorityLabel = (priority: Priority): string => {
+    switch (priority) {
+      case 'high': return '高'
+      case 'medium': return '中'
+      case 'low': return '低'
+    }
+  }
   return (
     <ListItem className="bg-white rounded-lg shadow-sm mb-2 hover:shadow-md transition-shadow">
       <Checkbox
@@ -27,12 +44,20 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
       />
       <ListItemText
         primary={
-          <Typography
-            variant="h6"
-            className={task.completed ? 'line-through text-gray-500' : ''}
-          >
-            {task.title}
-          </Typography>
+          <Box className="flex items-center gap-2 mb-1">
+            <Typography
+              variant="h6"
+              className={task.completed ? 'line-through text-gray-500' : ''}
+            >
+              {task.title}
+            </Typography>
+            <Chip
+              label={getPriorityLabel(task.priority)}
+              color={getPriorityColor(task.priority)}
+              size="small"
+              variant="outlined"
+            />
+          </Box>
         }
         secondary={
           task.description && (
